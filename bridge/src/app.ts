@@ -72,7 +72,7 @@ app.get('/callback', async (req, res) =>  {
   const userInfo = await Github.getUserInfo(gh_accessToken);
 	const email = await Github.getUserEmail(gh_accessToken);
 	debug('email', email)
-  const authFetch = await CSS_INSTANCE.createAuthFetch(email, DEFAULT_POD_PW)
+  // const authFetch = await CSS_INSTANCE.createAuthFetch(email, DEFAULT_POD_PW)
   const session = req.session as TodoSession
 
   session.userInfo = userInfo;
@@ -80,6 +80,12 @@ app.get('/callback', async (req, res) =>  {
   session.gh_accessToken = gh_accessToken
   console.log("session:")
   console.log(session)
+  const username = userInfo.login
+	if (! await CSS_INSTANCE.doesPodExists(username)){
+  	const success = await CSS_INSTANCE.createHiddenPodForGithubUser(username, email);
+	}
+
+
   res.redirect('/');
 });
 
@@ -92,7 +98,7 @@ app.get('/secret/', async (req, res) =>  {
     	console.log(`no pod exist for ${username}`)
     	const success = await CSS_INSTANCE.createHiddenPodForGithubUser(username, email);
     	if (success){
-      	const authFetch = await CSS_INSTANCE.createAuthFetch(email, 'pw123')
+      	const authFetch = await CSS_INSTANCE.createAuthFetch(email, DEFAULT_POD_PW)
       	const resp = await authFetch(`${CSS_URL}/${username}/private/secret`)
       	res.send(await resp.text())
     	}else{
@@ -100,7 +106,7 @@ app.get('/secret/', async (req, res) =>  {
     	}
   	}else{
       	console.log(`pod already exist for ${username}`)
-      	const authFetch = await CSS_INSTANCE.createAuthFetch(email, 'pw123')
+      	const authFetch = await CSS_INSTANCE.createAuthFetch(email, DEFAULT_POD_PW)
       	const resp = await authFetch(`${CSS_URL}/${username}/private/secret`)
       	const resp_text = await resp.text()
       	console.log(`fetched resource and got ${resp_text}`)
