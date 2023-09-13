@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "start": "npx community-solid-server -c config.json -f ./data -p 3055",
+    "install": "npm install"
+  },
+  "dependencies": {
+    "@solid/community-server": "^6.0.2"
+  }
+}
